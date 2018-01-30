@@ -5,13 +5,13 @@
     <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}"
             x:Key="CurrencyEnum">
         <ObjectDataProvider.MethodParameters>
-            <x:Type TypeName="base:CoinType" />
+            <x:Type TypeName="base:Currency" />
         </ObjectDataProvider.MethodParameters>
     </ObjectDataProvider>
     <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}"
             x:Key="LocationEnum">
         <ObjectDataProvider.MethodParameters>
-            <x:Type TypeName="base:TradingLocation" />
+            <x:Type TypeName="base:Location" />
         </ObjectDataProvider.MethodParameters>
     </ObjectDataProvider>
 </ResourceDictionary>

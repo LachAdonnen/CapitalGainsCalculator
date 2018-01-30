@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 namespace CapitalGainsCalculator.Model
 {
 	[Serializable]
-	public abstract class ExchangeOrder : TradeOrder
+	public class ExchangeOrder : BaseOrder
 	{
 		#region Properties
 		[Required()]
-		public CoinType BaseCurrency { get; set; }
+		public Currency BaseCurrency { get; set; }
 
 		[Required()]
 		public decimal BaseAmount { get; set; }
@@ -21,25 +21,33 @@ namespace CapitalGainsCalculator.Model
 		public decimal BaseFee { get; set; }
 
 		public string DisplayBaseAmount
-		{ 
+		{
 			get
 			{
 				return FormatCurrencyAmount(BaseAmount, BaseCurrency);
 			}
 		}
+
+		public TaxableBuyOrder TaxableBuy { get; private set; }
+		public TaxableSellOrder TaxableSell { get; private set; }
 		#endregion
 
 		#region Constructors
 		protected ExchangeOrder()
-			: base()
+				: base()
 		{ }
 
 		public ExchangeOrder(int orderId)
 			: base(orderId)
 		{ }
+
+		protected override void OnInitializeOrder()
+		{
+			// Split trade into the buy/sell components
+		}
 		#endregion
 
-		protected override void OnCopyFrom(TradeOrder copyFrom)
+		protected override void OnCopyFrom(BaseOrder copyFrom)
 		{
 			base.OnCopyFrom(copyFrom);
 			ExchangeOrder copyExchange = copyFrom as ExchangeOrder;
@@ -48,7 +56,7 @@ namespace CapitalGainsCalculator.Model
 			this.BaseFee = copyExchange.BaseFee;
 		}
 
-		protected override bool OnFilterCurrency(CoinType[] allowedCurrencies)
+		protected override bool OnFilterCurrency(Currency[] allowedCurrencies)
 		{
 			return (allowedCurrencies.Contains(TradeCurrency) ||
 					allowedCurrencies.Contains(BaseCurrency));

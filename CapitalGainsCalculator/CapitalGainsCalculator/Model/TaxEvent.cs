@@ -38,9 +38,9 @@ namespace CapitalGainsCalculator.Model
 
 		public TaxEvent(TaxLine sellTaxLine)
 		{
-			if (sellTaxLine.TradeOrder.Type != TradeType.Sell)
+			if (sellTaxLine.TradeOrder.Type != OrderType.Sell)
 			{
-				throw new TradeTypeMismatchException();
+				throw new OrderTypeMismatchException();
 			}
 			sellTaxLine.TaxEvent = this;
 			this.SellTaxLine = sellTaxLine;
@@ -49,9 +49,9 @@ namespace CapitalGainsCalculator.Model
 
 		public void AddBuyTaxLine(TaxLine buyTaxLine)
 		{
-			if (buyTaxLine.TradeOrder.Type != TradeType.Buy)
+			if (buyTaxLine.TradeOrder.Type != OrderType.Buy)
 			{
-				throw new TradeTypeMismatchException();
+				throw new OrderTypeMismatchException();
 			}
 			buyTaxLine.TaxEvent = this;
 			BuyTaxLines.Add(buyTaxLine);
