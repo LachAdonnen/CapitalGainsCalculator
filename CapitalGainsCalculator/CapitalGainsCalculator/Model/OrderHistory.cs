@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 namespace CapitalGainsCalculator.Model
 {
 	[Serializable]
-	public class TradeHistory<TTradeOrder> : List<TTradeOrder>
-		where TTradeOrder : TradeOrder
+	public class OrderHistory<TBaseOrder> : List<TBaseOrder>
+		where TBaseOrder : BaseOrder
 	{
-		public TradeHistory() { }
+		public OrderHistory() { }
 
-		public void Sort(TradeSortType sortBy, ListSortDirection sortDir)
+		public void Sort(OrderSortType sortBy, ListSortDirection sortDir)
 		{
-			TradeOrder.SetComparisonParameters(sortBy, sortDir, true);
+			BaseOrder.SetComparisonParameters(sortBy, sortDir, true);
 			Sort();
 		}
 
@@ -35,10 +35,10 @@ namespace CapitalGainsCalculator.Model
 		//	return results;
 		//}
 
-		public TradeHistory<TTradeOrder> Filter(TradeFilter filter)
+		public OrderHistory<TBaseOrder> Filter(OrderFilter filter)
 		{
-			TradeHistory<TTradeOrder> results = new TradeHistory<TTradeOrder>();
-			foreach (TTradeOrder trade in this)
+			OrderHistory<TBaseOrder> results = new OrderHistory<TBaseOrder>();
+			foreach (TBaseOrder trade in this)
 			{
 				if (trade.Filter(filter))
 				{

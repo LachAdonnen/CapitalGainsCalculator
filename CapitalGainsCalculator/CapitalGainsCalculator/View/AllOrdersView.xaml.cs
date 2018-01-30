@@ -19,9 +19,9 @@ namespace CapitalGainsCalculator.View
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class AllTradesView : Window
+	public partial class AllOrdersView : Window
 	{
-		public AllTradesView()
+		public AllOrdersView()
 		{
 			InitializeComponent();
 		}
@@ -31,7 +31,7 @@ namespace CapitalGainsCalculator.View
 
 		protected override void OnClosing(CancelEventArgs e)
 		{
-			DelegateCommand.TryExecuteCommand((DataContext as AllTradesViewModel)?.SaveToStorageCommand, null);
+			DelegateCommand.TryExecuteCommand((DataContext as AllOrdersViewModel)?.SaveToStorageCommand, null);
 		}
 	}
 }

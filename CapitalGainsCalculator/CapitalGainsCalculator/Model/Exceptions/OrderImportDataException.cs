@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace CapitalGainsCalculator.Model
 {
-	internal class TradeImportDataException : Exception
+	internal class OrderImportDataException : Exception
 	{
-		public TradeImportDataException()
-			: base("Attempted to import invalid trade data.")
+		public OrderImportDataException()
+			: base("Attempted to import invalid order data.")
 		{ }
 	}
 }

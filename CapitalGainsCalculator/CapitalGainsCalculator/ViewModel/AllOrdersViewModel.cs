@@ -12,17 +12,17 @@ using CapitalGainsCalculator.Model;
 
 namespace CapitalGainsCalculator.ViewModel
 {
-	public class AllTradesViewModel : TradeHistoryViewModel
+	public class AllOrdersViewModel : OrderHistoryViewModel
 	{
-		private const string IsoStoreFileName = "Trade Data - Current.txt";
+		private const string IsoStoreFileName = "Order Data - Current.txt";
 
 		private IsolatedStorageFile _isoStore;
 		
-		public AllTradesViewModel()
+		public AllOrdersViewModel()
 			: base()
 		{
-			SelectedTrade = null;
-			VisibleTrades = this;
+			SelectedOrder = null;
+			VisibleOrders = this;
 			InSelectionMode = true;
 		}
 
@@ -45,60 +45,11 @@ namespace CapitalGainsCalculator.ViewModel
 						try
 						{
 							isoStream.Position = 0;
-							_tradesVM = (ObservableCollection<TradeOrderViewModel>)(new BinaryFormatter().Deserialize(isoStream));
+							_ordersVM = (ObservableCollection<OrderViewModel>)(new BinaryFormatter().Deserialize(isoStream));
 						}
 						catch (Exception) { } // Just use a blank trade history if read fails
 					}
 				}
-			}
-		}
-
-		private void LoadTestingDefaults()
-		{
-			if (_tradesVM.Count < 1)
-			{
-				_tradesVM.Add(
-					new TradeOrderViewModel(
-						new BuyOrder()
-						{
-							OrderInstant = new DateTime(2018, 1, 1),
-							BaseCurrency = CoinType.USD,
-							BaseAmount = new decimal(100),
-							BaseFee = new decimal(0),
-							TradeCurrency = CoinType.ETH,
-							TradeAmount = new decimal(1),
-							Location = TradingLocation.GDAX
-					}));
-				_tradesVM.Add(
-					new TradeOrderViewModel(
-						new WithdrawOrder()
-						{
-							OrderInstant = new DateTime(2018, 1, 10),
-							TradeCurrency = CoinType.ETH,
-							TradeAmount = new decimal(1),
-							Location = TradingLocation.GDAX
-					}));
-				_tradesVM.Add(
-					new TradeOrderViewModel(
-						new DepositOrder()
-						{
-							OrderInstant = new DateTime(2018, 1, 10),
-							TradeCurrency = CoinType.ETH,
-							TradeAmount = new decimal(1),
-							Location = TradingLocation.Coinbase
-					}));
-				_tradesVM.Add(
-					new TradeOrderViewModel(
-						new SellOrder()
-						{
-							OrderInstant = new DateTime(2018, 1, 1),
-							BaseCurrency = CoinType.USD,
-							BaseAmount = new decimal(150),
-							BaseFee = new decimal(0),
-							TradeCurrency = CoinType.ETH,
-							TradeAmount = new decimal(1),
-							Location = TradingLocation.Coinbase
-					}));
 			}
 		}
 
@@ -110,18 +61,18 @@ namespace CapitalGainsCalculator.ViewModel
 			set
 			{
 				_inSelectionMode = value;
-				RaisePropertyChangedEvent("InCreationMode");
+				RaisePropertyChangedEvent(nameof(InSelectionMode));
 			}
 		}
 
-		private TradeHistoryViewModel _visibleTrades;
-		public TradeHistoryViewModel VisibleTrades
+		private OrderHistoryViewModel _visibleOrders;
+		public OrderHistoryViewModel VisibleOrders
 		{
-			get { return _visibleTrades; }
+			get { return _visibleOrders; }
 			private set
 			{
-				_visibleTrades = value;
-				RaisePropertyChangedEvent("VisibleTrades");
+				_visibleOrders = value;
+				RaisePropertyChangedEvent(nameof(VisibleOrders));
 			}
 		}
 
@@ -132,31 +83,31 @@ namespace CapitalGainsCalculator.ViewModel
 			set
 			{
 				_selectedIndex = value;
-				SelectedTrade = new TradeOrderViewModel(_tradesVM[_selectedIndex]);
-				RaisePropertyChangedEvent("SelectedIndex");
+				SelectedOrder = new OrderViewModel(_ordersVM[_selectedIndex]);
+				RaisePropertyChangedEvent(nameof(SelectedIndex));
 			}
 		}
 
-		private TradeOrderViewModel _selectedTrade;
-		public TradeOrderViewModel SelectedTrade
+		private OrderViewModel _selectedOrder;
+		public OrderViewModel SelectedOrder
 		{
-			get { return _selectedTrade; }
+			get { return _selectedOrder; }
 			set
 			{
-				_selectedTrade = value;
-				RaisePropertyChangedEvent("SelectedTrade");
+				_selectedOrder = value;
+				RaisePropertyChangedEvent(nameof(SelectedOrder));
 			}
 		}
 		#endregion
 
 		#region Commands
-		public DelegateCommand SortTradesCommand;
-		public DelegateCommand FilterTradesCommand;
+		public DelegateCommand SortOrdersCommand;
+		public DelegateCommand FilterOrdersCommand;
 
-		private DelegateCommand _createTradeCommand = null;
-		public DelegateCommand CreateTradeCommand
+		private DelegateCommand _createOrderCommand = null;
+		public DelegateCommand CreateOrderCommand
 		{
-			get { return InitializeCommand(_createTradeCommand, param => this.ExecuteCreateTrade(param), null); }
+			get { return InitializeCommand(_createOrderCommand, param => this.ExecuteCreateOrder(param), null); }
 		}
 
 		private DelegateCommand _promptFileCommand = null;
@@ -168,13 +119,13 @@ namespace CapitalGainsCalculator.ViewModel
 		private DelegateCommand _importFileCommand = null;
 		public DelegateCommand ImportTradesCommand
 		{
-			get { return InitializeCommand(_importFileCommand, param => this.ExecuteImportTrades(param), null); }
+			get { return InitializeCommand(_importFileCommand, param => this.ExecuteImportFile(param), null); }
 		}
 
-		private DelegateCommand _deleteTradeCommand = null;
-		public DelegateCommand DeleteTradeCommand
+		private DelegateCommand _deleteOrderCommand = null;
+		public DelegateCommand DeleteOrderCommand
 		{
-			get { return InitializeCommand(_deleteTradeCommand, param => this.ExecuteDeleteTrade(), param => this.CanExecuteDeleteTrade()); }
+			get { return InitializeCommand(_deleteOrderCommand, param => this.ExecuteDeleteOrder(), param => this.CanExecuteDeleteOrder()); }
 		}
 
 		private DelegateCommand _acceptChangesCommand = null;
@@ -195,7 +146,7 @@ namespace CapitalGainsCalculator.ViewModel
 			get { return InitializeCommand(_saveToStorageCommand, param => this.ExecuteSaveToStorage(), null); }
 		}
 
-		private DelegateCommand InitializeCommand(DelegateCommand command, Action<object> execute, Predicate<object> canExecute)
+		private static DelegateCommand InitializeCommand(DelegateCommand command, Action<object> execute, Predicate<object> canExecute)
 		{
 			if (command == null)
 			{
@@ -206,13 +157,13 @@ namespace CapitalGainsCalculator.ViewModel
 		#endregion
 
 		#region Command Handlers
-		private void ExecuteCreateTrade(object param)
+		private void ExecuteCreateOrder(object param)
 		{
-			TradeType typeParse;
-			if (Enum.TryParse<TradeType>(param as string, out typeParse))
+			OrderType typeParse;
+			if (Enum.TryParse<OrderType>(param as string, out typeParse))
 			{
 				InSelectionMode = false;
-				SelectedTrade = new TradeOrderViewModel(typeParse);
+				SelectedOrder = new OrderViewModel(typeParse);
 			}
 		}
 
@@ -229,12 +180,12 @@ namespace CapitalGainsCalculator.ViewModel
 			}
 		}
 
-		private void ExecuteImportTrades(object param)
+		private void ExecuteImportFile(object param)
 		{
 			string fileName = param as string;
 			if (!string.IsNullOrWhiteSpace(fileName))
 			{
-				ImportTradeData(ProcessTradeImportFile(fileName));
+				ImportOrderData(ProcessOrderImportFile(fileName));
 			}
 		}
 
@@ -244,32 +195,32 @@ namespace CapitalGainsCalculator.ViewModel
 			{
 				try
 				{
-					new BinaryFormatter().Serialize(isoStream, _tradesVM);
+					new BinaryFormatter().Serialize(isoStream, _ordersVM);
 				}
 				catch (Exception) { } // Fail silently
 			}
 		}
 
-		private bool CanExecuteDeleteTrade()
+		private bool CanExecuteDeleteOrder()
 		{
-			return InSelectionMode && SelectedTrade != null;
+			return InSelectionMode && SelectedOrder != null;
 		}
 
-		private void ExecuteDeleteTrade()
+		private void ExecuteDeleteOrder()
 		{
-			_tradesVM.Remove(SelectedTrade);
-			SelectedTrade = null;
+			_ordersVM.RemoveAt(SelectedIndex);
+			SelectedOrder = null;
 		}
 
 		private void ExecuteAcceptChanges()
 		{
 			if (InSelectionMode)
 			{
-				_tradesVM[SelectedIndex] = SelectedTrade;
+				_ordersVM[SelectedIndex] = SelectedOrder;
 			}
 			else
 			{
-				_tradesVM.Add(SelectedTrade);
+				_ordersVM.Add(SelectedOrder);
 			}
 			CleanupChanges();
 		}
@@ -281,13 +232,13 @@ namespace CapitalGainsCalculator.ViewModel
 
 		private void CleanupChanges()
 		{
-			SelectedTrade = null;
+			SelectedOrder = null;
 			InSelectionMode = true;
 		}
 		#endregion
 
 		#region Import Helper Methods
-		private List<string> ProcessTradeImportFile(string fileName)
+		private List<string> ProcessOrderImportFile(string fileName)
 		{
 			List<string> importData = new List<string>();
 			try
@@ -300,11 +251,11 @@ namespace CapitalGainsCalculator.ViewModel
 			return importData;
 		}
 
-		private void ImportTradeData(List<string> importData)
+		private void ImportOrderData(List<string> importData)
 		{
 			foreach (string importLine in importData)
 			{
-				_tradesVM.Add(new TradeOrderViewModel(importLine));
+				_ordersVM.Add(new OrderViewModel(importLine));
 			}
 		}
 		#endregion

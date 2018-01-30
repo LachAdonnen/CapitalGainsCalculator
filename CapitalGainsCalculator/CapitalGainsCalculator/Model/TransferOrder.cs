@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CapitalGainsCalculator.Model
 {
 	[Serializable]
-	public abstract class TransferOrder : TradeOrder
+	public class TransferOrder : BaseOrder
 	{
 		#region Constructors
 		public TransferOrder()

@@ -8,17 +8,17 @@ using CapitalGainsCalculator.Model;
 
 namespace CapitalGainsCalculator.ViewModel
 {
-	public class TradeHistoryViewModel : ViewModelBase
+	public class OrderHistoryViewModel : ViewModelBase
 	{
-		protected ObservableCollection<TradeOrderViewModel> _tradesVM;
-		protected TradeFilter _filter;
+		protected ObservableCollection<OrderViewModel> _ordersVM;
+		protected OrderFilter _filter;
 
-		public ObservableCollection<TradeOrderViewModel> Trades
+		public ObservableCollection<OrderViewModel> Orders
 		{
-			get { return _tradesVM; }
+			get { return _ordersVM; }
 		}
 
-		public TradeHistoryViewModel()
+		public OrderHistoryViewModel()
 		{
 			Initialize();
 			InitializeViewModels();
@@ -26,8 +26,8 @@ namespace CapitalGainsCalculator.ViewModel
 
 		private void Initialize()
 		{
-			_tradesVM = new ObservableCollection<TradeOrderViewModel>();
-			_filter = new TradeFilter();
+			_ordersVM = new ObservableCollection<OrderViewModel>();
+			_filter = new OrderFilter();
 			OnInitialize();
 		}
 

@@ -1,13 +1,13 @@
-﻿<Window x:Class="CapitalGainsCalculator.View.AllTradesView"
+﻿<Window x:Class="CapitalGainsCalculator.View.AllOrdersView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:CapitalGainsCalculator.ViewModel"
         mc:Ignorable="d"
-        Title="Trade History" Height="900" Width="600">
+        Title="Order History" Height="900" Width="600">
     <Window.DataContext>
-        <vm:AllTradesViewModel />
+        <vm:AllOrdersViewModel />
     </Window.DataContext>
     <DockPanel>
         <Grid>
@@ -20,7 +20,7 @@
             </Grid.RowDefinitions>
 
             <ListView Grid.Row="0" Margin="5,0,5,0" Name="OrderListView"
-                      ItemsSource="{Binding Path=VisibleTrades.Trades}"
+                      ItemsSource="{Binding Path=VisibleOrders.Orders}"
                       SelectedIndex="{Binding Path=SelectedIndex}"
                       SelectionMode="Single"
                       IsEnabled="{Binding Path=InSelectionMode}">
@@ -94,15 +94,15 @@
                     <Border BorderThickness="1" BorderBrush="Black" Margin="5">
                         <StackPanel Orientation="Horizontal">
                             <Label Content="New Order" Margin="5" />
-                            <Button Content="Buy" Command="{Binding Path=CreateTradeCommand}" CommandParameter="Buy" />
-                            <Button Content="Sell" Command="{Binding Path=CreateTradeCommand}" CommandParameter="Sell" />
-                            <Button Content="Deposit" Command="{Binding Path=CreateTradeCommand}" CommandParameter="Deposit" />
-                            <Button Content="Withdraw" Command="{Binding Path=CreateTradeCommand}" CommandParameter="Withdraw" />
+                            <Button Content="Buy" Command="{Binding Path=CreateOrderCommand}" CommandParameter="Buy" />
+                            <Button Content="Sell" Command="{Binding Path=CreateOrderCommand}" CommandParameter="Sell" />
+                            <Button Content="Deposit" Command="{Binding Path=CreateOrderCommand}" CommandParameter="Deposit" />
+                            <Button Content="Withdraw" Command="{Binding Path=CreateOrderCommand}" CommandParameter="Withdraw" />
                         </StackPanel>
                     </Border>
                     <Border Margin="0,5">
                         <StackPanel Orientation="Horizontal">
-                            <Button Content="Delete" Command="{Binding DeleteTradeCommand}" />
+                            <Button Content="Delete" Command="{Binding DeleteOrderCommand}" />
                             <Button Content="Import" Command="{Binding PromptFileCommand}" />
                         </StackPanel>
                     </Border>
@@ -111,8 +111,8 @@
                 <Separator />
 
                 <Border>
-                    <StackPanel Visibility="{Binding Path=SelectedTrade, Converter={vm:NullToHiddenConverter}}">
-                        <Grid DataContext="{Binding Path=SelectedTrade}">
+                    <StackPanel Visibility="{Binding Path=SelectedOrder, Converter={vm:NullToHiddenConverter}}">
+                        <Grid DataContext="{Binding Path=SelectedOrder}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <!--Header-->

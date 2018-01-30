@@ -56,36 +56,34 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\TaxableBuyOrder.cs" />
+    <Compile Include="Model\TaxableBaseOrder.cs" />
+    <Compile Include="Model\TaxableSellOrder.cs" />
     <Compile Include="ViewModel\Converters\NullToHiddenConverter.cs" />
     <Compile Include="ViewModel\DelegateCommand.cs" />
-    <Compile Include="Model\BuyOrder.cs" />
-    <Compile Include="Model\DepositOrder.cs" />
-    <Compile Include="Model\Exceptions\TradeImportDataException.cs" />
+    <Compile Include="Model\Exceptions\OrderImportDataException.cs" />
     <Compile Include="Model\ExchangeOrder.cs" />
-    <Compile Include="Model\SellOrder.cs" />
     <Compile Include="Model\TaxCalculator.cs" />
     <Compile Include="Model\TaxEvent.cs" />
     <Compile Include="Model\TaxLine.cs" />
-    <Compile Include="TradeEnums.cs" />
-    <Compile Include="Model\TradeHistory.cs" />
-    <Compile Include="Model\TradeListUtilities.cs" />
-    <Compile Include="Model\TradeOrder.cs" />
-    <Compile Include="Model\Exceptions\TradeTypeMismatchException.cs" />
+    <Compile Include="OrderEnums.cs" />
+    <Compile Include="Model\OrderHistory.cs" />
+    <Compile Include="Model\BaseOrder.cs" />
+    <Compile Include="Model\Exceptions\OrderTypeMismatchException.cs" />
     <Compile Include="Model\TransferOrder.cs" />
-    <Compile Include="Model\WithdrawOrder.cs" />
     <Compile Include="ViewModel\TaxLineViewModel.cs" />
-    <Compile Include="ViewModel\TradeHistoryViewModel.cs" />
-    <Compile Include="ViewModel\AllTradesViewModel.cs" />
-    <Compile Include="ViewModel\TradeOrderViewModel.cs" />
+    <Compile Include="ViewModel\OrderHistoryViewModel.cs" />
+    <Compile Include="ViewModel\AllOrdersViewModel.cs" />
+    <Compile Include="ViewModel\OrderViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
-    <Compile Include="View\AllTradesView.xaml.cs">
-      <DependentUpon>AllTradesView.xaml</DependentUpon>
+    <Compile Include="View\AllOrdersView.xaml.cs">
+      <DependentUpon>AllOrdersView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="View\AllTradesView.xaml">
+    <Page Include="View\AllOrdersView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

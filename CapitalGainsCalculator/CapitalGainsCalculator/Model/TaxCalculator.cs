@@ -9,11 +9,8 @@ namespace CapitalGainsCalculator.Model
 	public class TaxCalculator
 	{
 		private TaxCalculationType _calcType;
-		
-		private TradeHistory<BuyOrder> _buyTrades;
-		private TradeHistory<SellOrder> _sellTrades;
 
-		public TaxCalculator(TaxCalculationType type, TradeHistory<TradeOrder> allTrades)
+		public TaxCalculator(TaxCalculationType type, OrderHistory<BaseOrder> allTrades)
 		{
 			_calcType = type;
 		}

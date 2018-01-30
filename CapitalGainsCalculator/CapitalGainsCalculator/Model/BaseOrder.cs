@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 namespace CapitalGainsCalculator.Model
 {
 	[Serializable]
-	public abstract class TradeOrder : IComparable<TradeOrder>
+	public abstract class BaseOrder : IComparable<BaseOrder>
 	{
 		#region Properties
-		private static TradeComparer s_comparer;
+		private static OrderComparer s_comparer;
 		private static int s_nextId = 1;
 
 		public int OrderId { get; private set; }
@@ -22,13 +22,13 @@ namespace CapitalGainsCalculator.Model
 		public DateTime OrderInstant { get; set; }
 
 		[Required()]
-		public TradeType Type { get; set; }
+		public OrderType Type { get; set; }
 
 		[Required()]
-		public TradingLocation Location { get; set; }
+		public Location Location { get; set; }
 
 		[Required()]
-		public CoinType TradeCurrency { get; set; }
+		public Currency TradeCurrency { get; set; }
 
 		[Required()]
 		public decimal TradeAmount { get; set; }
@@ -41,18 +41,18 @@ namespace CapitalGainsCalculator.Model
 			}
 		}
 
-		protected string FormatCurrencyAmount(decimal amount, CoinType currency)
+		protected string FormatCurrencyAmount(decimal amount, Currency currency)
 		{
 			return string.Format("{0:F2} {1}", amount, currency.ToString());
 		}
 		#endregion
 
 		#region Constructors
-		public TradeOrder()
+		public BaseOrder()
 			: this(-1)
 		{ }
 
-		public TradeOrder(int orderId)
+		public BaseOrder(int orderId)
 		{
 			if (orderId < 0)
 			{
@@ -67,56 +67,47 @@ namespace CapitalGainsCalculator.Model
 				}
 			}
 
-			OnInitializeTrade();
+			OnInitializeOrder();
 		}
 
-		protected void InitializeTrade(int orderId)
-		{
-
-		}
-
-		protected virtual void OnInitializeTrade() { }
+		protected virtual void OnInitializeOrder() { }
 		#endregion
 
-		public static TradeOrder CreateTradeOrder(TradeType type)
+		public static BaseOrder CreateOrder(OrderType type)
 		{
-			return CreateTradeOrder(type, -1);
+			return CreateOrder(type, -1);
 		}
 
-		private static TradeOrder CreateTradeOrder(TradeType type, int orderId)
+		private static BaseOrder CreateOrder(OrderType type, int orderId)
 		{
-			TradeOrder trade = null;
+			BaseOrder trade = null;
 			switch (type)
 			{
-				case TradeType.Buy:
-					trade = new BuyOrder(orderId);
+				case OrderType.Buy:
+				case OrderType.Sell:
+					trade = new ExchangeOrder(orderId) { Type = type };
 					break;
-				case TradeType.Sell:
-					trade = new SellOrder(orderId);
-					break;
-				case TradeType.Deposit:
-					trade = new DepositOrder(orderId);
-					break;
-				case TradeType.Withdraw:
-					trade = new WithdrawOrder(orderId);
+				case OrderType.Deposit:
+				case OrderType.Withdraw:
+					trade = new TransferOrder(orderId) { Type = type };
 					break;
 			}
 			return trade;
 		}
 
-		public static TradeOrder CreateTradeOrder(TradeOrder copyFrom)
+		public static BaseOrder CreateOrder(BaseOrder copyFrom)
 		{
-			TradeOrder newOrder = TradeOrder.CreateTradeOrder(copyFrom.Type, copyFrom.OrderId);
+			BaseOrder newOrder = BaseOrder.CreateOrder(copyFrom.Type, copyFrom.OrderId);
 			newOrder.CopyFrom(copyFrom);
 			return newOrder;
 		}
 
-		private void CopyFrom(TradeOrder copyFrom)
+		private void CopyFrom(BaseOrder copyFrom)
 		{
 			OnCopyFrom(copyFrom);
 		}
 
-		protected virtual void OnCopyFrom(TradeOrder copyFrom)
+		protected virtual void OnCopyFrom(BaseOrder copyFrom)
 		{
 			this.OrderInstant = new DateTime(copyFrom.OrderInstant.Ticks);
 			this.Location = copyFrom.Location;
@@ -124,7 +115,7 @@ namespace CapitalGainsCalculator.Model
 			this.TradeAmount = copyFrom.TradeAmount;
 		}
 
-		public bool Filter(TradeFilter filter)
+		public bool Filter(OrderFilter filter)
 		{
 			if (filter.HasEarliestTime &&
 				!OnFilterEarliestTime(filter.EarliestTime))
@@ -159,66 +150,66 @@ namespace CapitalGainsCalculator.Model
 			return OrderInstant <= latestTime;
 		}
 
-		protected virtual bool OnFilterLocation(TradingLocation[] allowedLocations)
+		protected virtual bool OnFilterLocation(Location[] allowedLocations)
 		{
 			return allowedLocations.Contains(Location);
 		}
 
-		protected virtual bool OnFilterType(TradeType[] allowedTypes)
+		protected virtual bool OnFilterType(OrderType[] allowedTypes)
 		{
 			return allowedTypes.Contains(Type);
 		}
 
-		protected virtual bool OnFilterCurrency(CoinType[] allowedCurrencies)
+		protected virtual bool OnFilterCurrency(Currency[] allowedCurrencies)
 		{
 			return allowedCurrencies.Contains(TradeCurrency);
 		}
 
-		public static void SetComparisonParameters(TradeSortType sortBy, ListSortDirection sortDir,
+		public static void SetComparisonParameters(OrderSortType sortBy, ListSortDirection sortDir,
 			bool uniqueSort)
 		{
-			s_comparer = new TradeComparer(sortBy, sortDir, uniqueSort);
+			s_comparer = new OrderComparer(sortBy, sortDir, uniqueSort);
 		}
 
-		public int CompareTo(TradeOrder other)
+		public int CompareTo(BaseOrder other)
 		{
 			return s_comparer.Compare(this, other);
 		}
 	}
 
-	public class TradeComparer : IComparer<TradeOrder>
+	public class OrderComparer : IComparer<BaseOrder>
 	{
-		private TradeSortType sortBy;
+		private OrderSortType sortBy;
 		private ListSortDirection sortDir;
 		private bool uniqueSort;
 
-		public TradeComparer(TradeSortType sortBy, ListSortDirection sortDir, bool uniqueSort)
+		public OrderComparer(OrderSortType sortBy, ListSortDirection sortDir, bool uniqueSort)
 		{
 			this.sortBy = sortBy;
 			this.sortDir = sortDir;
 			this.uniqueSort = uniqueSort;
 		}
 
-		public int Compare(TradeOrder x, TradeOrder y)
+		public int Compare(BaseOrder x, BaseOrder y)
 		{
 			int testComp = 0;
 
 			// First pass comparison using primary criterion
 			switch (sortBy)
 			{
-				case TradeSortType.Location:
+				case OrderSortType.Location:
 					testComp = CompareLocation(x, y);
 					break;
-				case TradeSortType.Type:
+				case OrderSortType.Type:
 					testComp = CompareType(x, y);
 					break;
-				case TradeSortType.TradeCurrency:
+				case OrderSortType.TradeCurrency:
 					testComp = CompareTradeCurrency(x, y);
 					break;
-				case TradeSortType.Date:
+				case OrderSortType.Date:
 					testComp = CompareDate(x, y);
 					break;
-				case TradeSortType.ID:
+				case OrderSortType.ID:
 				default:
 					testComp = CompareID(x, y);
 					break;
@@ -229,9 +220,9 @@ namespace CapitalGainsCalculator.Model
 			if (uniqueSort && testComp == 0)
 			{
 				// Use the date fallback if applicable
-				if (sortBy == TradeSortType.Location ||
-					sortBy == TradeSortType.Type ||
-					sortBy == TradeSortType.TradeCurrency)
+				if (sortBy == OrderSortType.Location ||
+					sortBy == OrderSortType.Type ||
+					sortBy == OrderSortType.TradeCurrency)
 				{
 					// Default to descending date order
 					testComp = (-1) * CompareDate(x, y);
@@ -251,48 +242,48 @@ namespace CapitalGainsCalculator.Model
 			return testComp;
 		}
 
-		private int CompareDate(TradeOrder x, TradeOrder y)
+		private int CompareDate(BaseOrder x, BaseOrder y)
 		{
 			return x.OrderInstant.CompareTo(y.OrderInstant);
 		}
 
-		private int CompareType(TradeOrder x, TradeOrder y)
+		private int CompareType(BaseOrder x, BaseOrder y)
 		{
 			return x.Type.ToString().CompareTo(y.Type.ToString());
 		}
 
-		private int CompareLocation(TradeOrder x, TradeOrder y)
+		private int CompareLocation(BaseOrder x, BaseOrder y)
 		{
 			return x.Location.ToString().CompareTo(y.Location.ToString());
 		}
 
-		private int CompareTradeCurrency(TradeOrder x, TradeOrder y)
+		private int CompareTradeCurrency(BaseOrder x, BaseOrder y)
 		{
 			return x.TradeCurrency.ToString().CompareTo(y.TradeCurrency.ToString());
 		}
 
-		private int CompareID(TradeOrder x, TradeOrder y)
+		private int CompareID(BaseOrder x, BaseOrder y)
 		{
 			return x.OrderId.CompareTo(y.OrderId);
 		}
 
-		public static TradeSortType ParseHeaderTag(string tag)
+		public static OrderSortType ParseHeaderTag(string tag)
 		{
 			switch (tag)
 			{
 				case "Date":
-					return TradeSortType.Date;
+					return OrderSortType.Date;
 				case "Type":
-					return TradeSortType.Type;
+					return OrderSortType.Type;
 				case "Location":
-					return TradeSortType.Location;
+					return OrderSortType.Location;
 				default:
-					return TradeSortType.ID;
+					return OrderSortType.ID;
 			}
 		}
 	}
 
-	public class TradeFilter
+	public class OrderFilter
 	{
 		public DateTime EarliestTime { get; set; }
 		public bool HasEarliestTime
@@ -312,7 +303,7 @@ namespace CapitalGainsCalculator.Model
 			}
 		}
 
-		public TradeType[] AllowedTypes { get; set; }
+		public OrderType[] AllowedTypes { get; set; }
 		public bool HasAllowedTypes
 		{
 			get
@@ -321,7 +312,7 @@ namespace CapitalGainsCalculator.Model
 			}
 		}
 
-		public TradingLocation[] AllowedLocations { get; set; }
+		public Location[] AllowedLocations { get; set; }
 		public bool HasAllowedLocations
 		{
 			get
@@ -330,7 +321,7 @@ namespace CapitalGainsCalculator.Model
 			}
 		}
 
-		public CoinType[] AllowedCurrencies { get; set; }
+		public Currency[] AllowedCurrencies { get; set; }
 		public bool HasAllowedCurrencies
 		{
 			get

@@ -10,10 +10,10 @@ namespace CapitalGainsCalculator.Model
 	public class TaxLine
 	{
 		public decimal TradeAmount { get; set; }
-		public TradeOrder TradeOrder { get; set; }
+		public BaseOrder TradeOrder { get; set; }
 		public TaxEvent TaxEvent { get; set; }
 		
-		public TaxLine(TradeOrder tradeOrder, decimal tradeAmount)
+		public TaxLine(BaseOrder tradeOrder, decimal tradeAmount)
 		{
 			this.TradeOrder = tradeOrder;
 			this.TradeAmount = tradeAmount;

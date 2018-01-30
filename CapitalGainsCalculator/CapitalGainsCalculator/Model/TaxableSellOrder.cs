@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CapitalGainsCalculator.Model
 {
 	[Serializable]
-	public class SellOrder : ExchangeOrder
+	public class TaxableSellOrder : TaxableBaseOrder
 	{
 		#region Properties
 		public TaxLine TaxLine { get; private set; }
@@ -21,18 +21,12 @@ namespace CapitalGainsCalculator.Model
 		#endregion
 
 		#region Constructors
-		public SellOrder()
-			: base()
+		public TaxableSellOrder(ExchangeOrder order)
+			: base(order)
 		{ }
 
-		public SellOrder(int orderId)
-			: base(orderId)
+		protected override void OnTaxableAddSource()
 		{ }
-
-		protected override void OnInitializeTrade()
-		{
-			Type = TradeType.Sell;
-		}
 		#endregion
 
 		public bool TryAddTaxLine(out TaxLine taxLine)
@@ -49,7 +43,7 @@ namespace CapitalGainsCalculator.Model
 				return true;
 			}
 		}
-		
+
 		public TaxEvent GetTaxEvent()
 		{
 			return TaxLine.TaxEvent;

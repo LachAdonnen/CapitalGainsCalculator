@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace CapitalGainsCalculator.Model
 {
-	internal class TradeTypeMismatchException : Exception
+	internal class OrderTypeMismatchException : Exception
 	{
-		public TradeTypeMismatchException()
-			: base("Invalid trade type used.")
+		public OrderTypeMismatchException()
+			: base("Invalid order type used.")
 		{ }
 	}
 }

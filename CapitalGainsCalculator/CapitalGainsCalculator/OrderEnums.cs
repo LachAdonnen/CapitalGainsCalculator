@@ -6,7 +6,7 @@ using System.Windows.Markup;
 
 namespace CapitalGainsCalculator
 {
-	public enum CoinType
+	public enum Currency
 	{
 		USD, BTC, ETH, LTC,
 		FST, ADA, APX, ARK,
@@ -21,7 +21,7 @@ namespace CapitalGainsCalculator
 		None
 	}
 
-	public enum TradingLocation
+	public enum Location
 	{
 		Coinbase,
 		GDAX,
@@ -30,15 +30,16 @@ namespace CapitalGainsCalculator
 		Bitfinex
 	}
 
-	public enum TradeType
+	public enum OrderType
 	{
 		Buy,
 		Sell,
 		Deposit,
 		Withdraw,
+		Taxable,
 	}
 
-	public enum TradeSortType
+	public enum OrderSortType
 	{
 		ID,
 		Date,
