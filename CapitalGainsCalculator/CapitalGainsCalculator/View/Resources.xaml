@@ -1,0 +1,17 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                    xmlns:base="clr-namespace:CapitalGainsCalculator">
+    <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}"
+            x:Key="CurrencyEnum">
+        <ObjectDataProvider.MethodParameters>
+            <x:Type TypeName="base:CoinType" />
+        </ObjectDataProvider.MethodParameters>
+    </ObjectDataProvider>
+    <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}"
+            x:Key="LocationEnum">
+        <ObjectDataProvider.MethodParameters>
+            <x:Type TypeName="base:TradingLocation" />
+        </ObjectDataProvider.MethodParameters>
+    </ObjectDataProvider>
+</ResourceDictionary>
