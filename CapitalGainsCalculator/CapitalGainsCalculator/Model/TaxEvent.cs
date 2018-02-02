@@ -38,22 +38,20 @@ namespace CapitalGainsCalculator.Model
 
 		public TaxEvent(TaxLine sellTaxLine)
 		{
-			if (sellTaxLine.TradeOrder.Type != OrderType.Sell)
+			if (!(sellTaxLine.TaxOrder is TaxableSellOrder))
 			{
 				throw new OrderTypeMismatchException();
 			}
-			sellTaxLine.TaxEvent = this;
 			this.SellTaxLine = sellTaxLine;
 			BuyTaxLines = new List<TaxLine>();
 		}
 
 		public void AddBuyTaxLine(TaxLine buyTaxLine)
 		{
-			if (buyTaxLine.TradeOrder.Type != OrderType.Buy)
+			if (!(buyTaxLine.TaxOrder is TaxableBuyOrder))
 			{
 				throw new OrderTypeMismatchException();
 			}
-			buyTaxLine.TaxEvent = this;
 			BuyTaxLines.Add(buyTaxLine);
 		}
 	}

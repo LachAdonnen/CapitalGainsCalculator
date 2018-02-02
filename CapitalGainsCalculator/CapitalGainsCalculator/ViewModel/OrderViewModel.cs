@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -11,8 +12,8 @@ namespace CapitalGainsCalculator.ViewModel
 	[Serializable]
 	public class OrderViewModel : ViewModelBase, IComparable<OrderViewModel>
 	{
-		private BaseOrder _order;
-		public BaseOrder Order
+		private ExchangeOrder _order;
+		public ExchangeOrder Order
 		{
 			get
 			{
@@ -25,22 +26,19 @@ namespace CapitalGainsCalculator.ViewModel
 			InitializeViewModels();
 		}
 
-		public OrderViewModel(BaseOrder order)
+		public OrderViewModel(ExchangeOrder order)
 			: this()
 		{
 			_order = order;
+			RaiseTaxLinesChanged();
 		}
-
-		public OrderViewModel(OrderType type)
-			: this(BaseOrder.CreateOrder(type))
-		{ }
 
 		public OrderViewModel(string importData)
 			: this(ImportOrder(importData))
 		{ }
 
 		public OrderViewModel(OrderViewModel orderVM)
-			: this(BaseOrder.CreateOrder(orderVM.Order))
+			: this(orderVM.Order.DeepCopy())
 		{ }
 		
 		private void InitializeViewModels()
@@ -52,7 +50,7 @@ namespace CapitalGainsCalculator.ViewModel
 			return _order.CompareTo(other._order);
 		}
 
-		#region Pass-through properties for TradeOrder
+		#region Pass-through properties for ExchangeOrder
 		public int OrderId
 		{
 			get { return _order.OrderId; }
@@ -78,12 +76,12 @@ namespace CapitalGainsCalculator.ViewModel
 			}
 		}
 
-		public Location Location
+		public Exchange Location
 		{
-			get { return _order.Location; }
+			get { return _order.OrderExchange; }
 			set
 			{
-				_order.Location = value;
+				_order.OrderExchange = value;
 				RaisePropertyChangedEvent(nameof(Location));
 			}
 		}
@@ -191,27 +189,47 @@ namespace CapitalGainsCalculator.ViewModel
 				}
 			}
 		}
+
+		public ObservableCollection<TaxLineViewModel> TaxLines
+		{
+			get
+			{
+				List<TaxLine> taxLines = _order.TaxLines;
+				ObservableCollection<TaxLineViewModel> taxLinesVM = new ObservableCollection<TaxLineViewModel>();
+				foreach (TaxLine line in taxLines)
+				{
+					taxLinesVM.Add(new TaxLineViewModel(line));
+				}
+				return taxLinesVM;
+			}
+		}
+
+		public void RaiseTaxLinesChanged()
+		{
+			RaisePropertyChangedEvent(nameof(TaxLines));
+		}
 		#endregion
 
 		#region Import Helper Methods
-		private static BaseOrder ImportOrder(string importString)
+		private static ExchangeOrder ImportOrder(string importString)
 		{
 			string[] orderData = importString.Split(new char[] { ',' }, StringSplitOptions.None);
-			BaseOrder newOrder = CreateOrder(orderData[1], !string.IsNullOrWhiteSpace(orderData[3]));
+			bool hasBaseData = !string.IsNullOrWhiteSpace(orderData[3]);
+			ExchangeOrder newOrder = CreateOrder(orderData[1], hasBaseData);
 
 			Currency coinParse;
 			decimal amountParse;
-			Location locationParse;
+			Exchange locationParse;
 
 			// Parse the order instant
 			newOrder.OrderInstant = DateTime.Parse(orderData[0]);
 
 			// Parse the trading location
-			if (!Enum.TryParse<Location>(orderData[7], out locationParse))
+			if (!Enum.TryParse<Exchange>(orderData[7], out locationParse))
 			{
 				throw new OrderImportDataException();
 			}
-			newOrder.Location = locationParse;
+			newOrder.OrderExchange = locationParse;
 
 			// Parse the trade currency type
 			if (!Enum.TryParse<Currency>(orderData[4], out coinParse))
@@ -228,7 +246,7 @@ namespace CapitalGainsCalculator.ViewModel
 			newOrder.TradeAmount = amountParse;
 
 			// Extra parsing for buy/sell orders
-			if (newOrder is ExchangeOrder)
+			if (hasBaseData)
 			{
 				ExchangeOrder newExchangeOrder = (ExchangeOrder)newOrder;
 
@@ -257,7 +275,7 @@ namespace CapitalGainsCalculator.ViewModel
 			return newOrder;
 		}
 
-		private static BaseOrder CreateOrder(string tradeType, bool hasBaseAmount)
+		private static ExchangeOrder CreateOrder(string tradeType, bool hasBaseAmount)
 		{
 			OrderType typeParse;
 			if (!Enum.TryParse<OrderType>(tradeType, out typeParse))
@@ -280,7 +298,7 @@ namespace CapitalGainsCalculator.ViewModel
 				}
 			}
 			else { throw new OrderImportDataException(); }
-			return BaseOrder.CreateOrder(typeParse);
+			return new ExchangeOrder() { Type = typeParse };
 		}
 		#endregion
 	}
@@ -289,7 +307,7 @@ namespace CapitalGainsCalculator.ViewModel
 	{
 		public OrderVMComparer(OrderSortType sortBy, ListSortDirection sortDir, bool uniqueSort)
 		{
-			BaseOrder.SetComparisonParameters(sortBy, sortDir, uniqueSort);
+			ExchangeOrder.SetComparisonParameters(sortBy, sortDir, uniqueSort);
 		}
 
 		public int Compare(OrderViewModel x, OrderViewModel y)

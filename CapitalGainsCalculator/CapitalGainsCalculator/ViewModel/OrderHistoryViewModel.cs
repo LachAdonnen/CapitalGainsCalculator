@@ -18,21 +18,30 @@ namespace CapitalGainsCalculator.ViewModel
 			get { return _ordersVM; }
 		}
 
+		public OrderHistory OrdersModel
+		{
+			get
+			{
+				OrderHistory list = new OrderHistory();
+				foreach (OrderViewModel orderVM in _ordersVM)
+				{
+					list.Add(orderVM.Order);
+				}
+				return list;
+			}
+		}
+
 		public OrderHistoryViewModel()
 		{
 			Initialize();
 			InitializeViewModels();
 		}
 
-		private void Initialize()
+		protected void Initialize()
 		{
 			_ordersVM = new ObservableCollection<OrderViewModel>();
 			_filter = new OrderFilter();
-			OnInitialize();
 		}
-
-		protected virtual void OnInitialize()
-		{ }
 
 		protected void InitializeViewModels()
 		{

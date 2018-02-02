@@ -11,42 +11,31 @@ namespace CapitalGainsCalculator.Model
 	{
 		#region Properties
 		public TaxLine TaxLine { get; private set; }
-		public bool IsTaxed
-		{
-			get
-			{
-				return TaxLine != null;
-			}
-		}
+
+		public override OrderType Type { get { return OrderType.Sell; } }
 		#endregion
 
 		#region Constructors
 		public TaxableSellOrder(ExchangeOrder order)
 			: base(order)
-		{ }
+		{
+			if (order.Type == OrderType.Buy)
+			{
+				TradeAmount = order.BaseAmount;
+				TradeCurrency = order.BaseCurrency;
+			}
+			else if (order.Type == OrderType.Sell)
+			{
+				TradeAmount = order.TradeAmount;
+				TradeCurrency = order.TradeCurrency;
+			}
 
-		protected override void OnTaxableAddSource()
-		{ }
+			TaxLine = new TaxLine(this, TradeAmount);
+			TaxLine.CreateTaxEvent();
+		}
 		#endregion
 
-		public bool TryAddTaxLine(out TaxLine taxLine)
-		{
-			if (IsTaxed)
-			{
-				taxLine = TaxLine;
-				return false;
-			}
-			else
-			{
-				TaxLine = new TaxLine(this, TradeAmount);
-				taxLine = TaxLine;
-				return true;
-			}
-		}
-
-		public TaxEvent GetTaxEvent()
-		{
-			return TaxLine.TaxEvent;
-		}
+		protected override int OnCompareTo(TaxableBaseOrder other)
+		{ return -1; } // If the source order is the same, sort the Sell first
 	}
 }

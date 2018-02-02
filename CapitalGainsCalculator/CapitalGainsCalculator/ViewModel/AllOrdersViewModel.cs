@@ -24,13 +24,9 @@ namespace CapitalGainsCalculator.ViewModel
 			SelectedOrder = null;
 			VisibleOrders = this;
 			InSelectionMode = true;
-		}
 
-		protected override void OnInitialize()
-		{
 			_isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly |
 				IsolatedStorageScope.Domain, null, null);
-
 			LoadFromStorage();
 		}
 
@@ -107,7 +103,7 @@ namespace CapitalGainsCalculator.ViewModel
 		private DelegateCommand _createOrderCommand = null;
 		public DelegateCommand CreateOrderCommand
 		{
-			get { return InitializeCommand(_createOrderCommand, param => this.ExecuteCreateOrder(param), null); }
+			get { return InitializeCommand(_createOrderCommand, param => this.ExecuteCreateOrder(), null); }
 		}
 
 		private DelegateCommand _promptFileCommand = null;
@@ -146,6 +142,12 @@ namespace CapitalGainsCalculator.ViewModel
 			get { return InitializeCommand(_saveToStorageCommand, param => this.ExecuteSaveToStorage(), null); }
 		}
 
+		private DelegateCommand _calculateTaxesCommand = null;
+		public DelegateCommand CalculateTaxesCommand
+		{
+			get { return InitializeCommand(_calculateTaxesCommand, param => this.ExecuteCalculateTaxesCommand(), null); }
+		}
+
 		private static DelegateCommand InitializeCommand(DelegateCommand command, Action<object> execute, Predicate<object> canExecute)
 		{
 			if (command == null)
@@ -157,14 +159,10 @@ namespace CapitalGainsCalculator.ViewModel
 		#endregion
 
 		#region Command Handlers
-		private void ExecuteCreateOrder(object param)
+		private void ExecuteCreateOrder()
 		{
-			OrderType typeParse;
-			if (Enum.TryParse<OrderType>(param as string, out typeParse))
-			{
-				InSelectionMode = false;
-				SelectedOrder = new OrderViewModel(typeParse);
-			}
+			InSelectionMode = false;
+			SelectedOrder = new OrderViewModel(new ExchangeOrder());
 		}
 
 		private void ExecutePromptFile()
@@ -182,6 +180,7 @@ namespace CapitalGainsCalculator.ViewModel
 
 		private void ExecuteImportFile(object param)
 		{
+			Initialize(); // Reset prior to import
 			string fileName = param as string;
 			if (!string.IsNullOrWhiteSpace(fileName))
 			{
@@ -198,6 +197,15 @@ namespace CapitalGainsCalculator.ViewModel
 					new BinaryFormatter().Serialize(isoStream, _ordersVM);
 				}
 				catch (Exception) { } // Fail silently
+			}
+		}
+
+		private void ExecuteCalculateTaxesCommand()
+		{
+			TaxCalculator.GenerateTaxEvents(TaxCalculationType.LIFO, OrdersModel);
+			foreach (OrderViewModel order in Orders)
+			{
+				order.RaiseTaxLinesChanged();
 			}
 		}
 

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:CapitalGainsCalculator.ViewModel"
         mc:Ignorable="d"
-        Title="Order History" Height="900" Width="600">
+        Title="Order History" Height="800" Width="1200">
     <Window.DataContext>
         <vm:AllOrdersViewModel />
     </Window.DataContext>
@@ -13,13 +13,15 @@
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <ListView Grid.Row="0" Margin="5,0,5,0" Name="OrderListView"
+            <ListView Grid.Row="0" Grid.Column="0"
+                      Margin="5,0,5,0"
+                      Name="OrderListView"
                       ItemsSource="{Binding Path=VisibleOrders.Orders}"
                       SelectedIndex="{Binding Path=SelectedIndex}"
                       SelectionMode="Single"
@@ -89,30 +91,22 @@
                 </ListView.View>
             </ListView>
 
-            <StackPanel Grid.Row="1" HorizontalAlignment="Stretch">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Border BorderThickness="1" BorderBrush="Black" Margin="5">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="New Order" Margin="5" />
-                            <Button Content="Buy" Command="{Binding Path=CreateOrderCommand}" CommandParameter="Buy" />
-                            <Button Content="Sell" Command="{Binding Path=CreateOrderCommand}" CommandParameter="Sell" />
-                            <Button Content="Deposit" Command="{Binding Path=CreateOrderCommand}" CommandParameter="Deposit" />
-                            <Button Content="Withdraw" Command="{Binding Path=CreateOrderCommand}" CommandParameter="Withdraw" />
-                        </StackPanel>
-                    </Border>
-                    <Border Margin="0,5">
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="Delete" Command="{Binding DeleteOrderCommand}" />
-                            <Button Content="Import" Command="{Binding PromptFileCommand}" />
-                        </StackPanel>
-                    </Border>
+            <StackPanel Grid.Row="0" Grid.Column="1"
+                        HorizontalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left"
+                            Margin="5,0,0,0">
+                    <Button Content="New" Command="{Binding CreateOrderCommand}" />
+                    <Button Content="Delete" Command="{Binding DeleteOrderCommand}" />
+                    <Button Content="Import" Command="{Binding PromptFileCommand}" />
+                    <Button Content="Taxes" Command="{Binding CalculateTaxesCommand}" />
                 </StackPanel>
 
                 <Separator />
 
                 <Border>
-                    <StackPanel Visibility="{Binding Path=SelectedOrder, Converter={vm:NullToHiddenConverter}}">
-                        <Grid DataContext="{Binding Path=SelectedOrder}">
+                    <!--<StackPanel Visibility="{Binding Path=SelectedOrder, Converter={vm:NullToHiddenConverter}}">-->
+                        <StackPanel Visibility="Visible">
+                        <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <!--Header-->
@@ -136,79 +130,134 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Trade Info"
-                                Style="{StaticResource SectionHeader}" />
+                            <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                                        Orientation="Horizontal">
+                                <Label Content="Trade Info"
+                                       Style="{StaticResource SectionHeader}" />
+                                <Label Grid.Row="0" Grid.Column="2" 
+                                       Content="ID:"
+                                       Style="{StaticResource DataFieldLabel}" />
+                                <Label Grid.Row="0" Grid.Column="3" 
+                                       Content="{Binding SelectedOrder.OrderId}"
+                                       Style="{StaticResource DataFieldReadonly}" />
+                            </StackPanel>
 
-                            <Grid Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
+                            <Label Grid.Row="0" Grid.Column="2" Content="Type:"
+                                   Style="{StaticResource DataFieldLabel}" />
+                            <ComboBox Grid.Row="0" Grid.Column="3"
+                                      IsEnabled="{Binding Path=InSelectionMode, Converter={vm:InvertConverter}}"
+                                      ItemsSource="{Binding Source={StaticResource OrderTypeEnum}}"
+                                      SelectedValue="{Binding SelectedOrder.Type}"
+                                      Style="{StaticResource DataFieldEntry}" />
 
-                                <Label Grid.Row="0" Grid.Column="0" Content="Type:"
-                                    Style="{StaticResource DataFieldLabel}" />
-                                <Label Grid.Row="0" Grid.Column="1" Content="{Binding Type}"
-                                    Style="{StaticResource DataFieldReadonly}" />
-                                <Label Grid.Row="0" Grid.Column="2" Content="ID:"
-                                    Style="{StaticResource DataFieldLabel}" />
-                                <Label Grid.Row="0" Grid.Column="3" Content="{Binding OrderId}"
-                                    Style="{StaticResource DataFieldReadonly}" />
-                            </Grid>
+                            <Label Grid.Row="1" Grid.Column="0"
+                                   Content="Date"
+                                   Style="{StaticResource DataFieldLabel}" />
+                            <DatePicker Grid.Row="1" Grid.Column="1"
+                                        SelectedDate="{Binding SelectedOrder.OrderInstant}"
+                                        Style="{StaticResource DataFieldEntry}" />
 
-                            <Label Grid.Row="1" Grid.Column="0" Content="Date"
-                                Style="{StaticResource DataFieldLabel}" />
-                            <DatePicker Grid.Row="1" Grid.Column="1" SelectedDate="{Binding OrderInstant}"
-                                Style="{StaticResource DataFieldEntry}" />
+                            <Label Grid.Row="1" Grid.Column="2" Content="Exchange"
+                                   Style="{StaticResource DataFieldLabel}" />
+                            <ComboBox Grid.Row="1" Grid.Column="3"
+                                      ItemsSource="{Binding Source={StaticResource LocationEnum}}"
+                                      SelectedValue="{Binding SelectedOrder.Location}"
+                                      Style="{StaticResource DataFieldEntry}" />
 
-                            <Label Grid.Row="1" Grid.Column="2" Content="Location"
-                                Style="{StaticResource DataFieldLabel}" />
-                            <ComboBox Grid.Row="1" Grid.Column="3" 
-                                ItemsSource="{Binding Source={StaticResource LocationEnum}}"
-                                SelectedValue="{Binding Location}"
-                                Style="{StaticResource DataFieldEntry}" />
+                            <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                   Content="Base"
+                                   Style="{StaticResource SectionHeader}" />
+                            <Label Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2"
+                                   Content="Trade"
+                                   Style="{StaticResource SectionHeader}" />
 
-                            <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Base"
-                                Style="{StaticResource SectionHeader}" />
-                            <Label Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Content="Trade"
-                                Style="{StaticResource SectionHeader}" />
+                            <Label Grid.Row="3" Grid.Column="0"
+                                   Content="Currency"
+                                   Style="{StaticResource DataFieldLabel}" />
+                            <ComboBox Grid.Row="3" Grid.Column="1"
+                                      ItemsSource="{Binding Source={StaticResource CurrencyEnum}}"
+                                      SelectedValue="{Binding SelectedOrder.BaseCurrency}"
+                                      Style="{StaticResource DataFieldEntry}" />
+                            <Label Grid.Row="3" Grid.Column="2"
+                                   Content="Currency"
+                                   Style="{StaticResource DataFieldLabel}" />
+                            <ComboBox Grid.Row="3" Grid.Column="3"
+                                      ItemsSource="{Binding Source={StaticResource CurrencyEnum}}"
+                                      SelectedValue="{Binding SelectedOrder.TradeCurrency}"
+                                      Style="{StaticResource DataFieldEntry}" />
 
-                            <Label Grid.Row="3" Grid.Column="0" Content="Currency"
-                                Style="{StaticResource DataFieldLabel}" />
-                            <ComboBox Grid.Row="3" Grid.Column="1" 
-                                ItemsSource="{Binding Source={StaticResource CurrencyEnum}}"
-                                SelectedValue="{Binding BaseCurrency}"
-                                Style="{StaticResource DataFieldEntry}" />
-                            <Label Grid.Row="3" Grid.Column="2" Content="Currency"
-                                Style="{StaticResource DataFieldLabel}" />
-                            <ComboBox Grid.Row="3" Grid.Column="3" 
-                                ItemsSource="{Binding Source={StaticResource CurrencyEnum}}"
-                                SelectedValue="{Binding TradeCurrency}"
-                                Style="{StaticResource DataFieldEntry}" />
+                            <Label Grid.Row="4" Grid.Column="0"
+                                   Content="Amount"
+                                   Style="{StaticResource DataFieldLabel}" />
+                            <TextBox Grid.Row="4" Grid.Column="1"
+                                     Text="{Binding SelectedOrder.BaseAmount}"
+                                     Style="{StaticResource DataFieldEntry}" />
+                            <Label Grid.Row="4" Grid.Column="2"
+                                   Content="Amount"
+                                   Style="{StaticResource DataFieldLabel}" />
+                            <TextBox Grid.Row="4" Grid.Column="3"
+                                     Text="{Binding SelectedOrder.TradeAmount}"
+                                     Style="{StaticResource DataFieldEntry}" />
 
-                            <Label Grid.Row="4" Grid.Column="0" Content="Amount"
-                                Style="{StaticResource DataFieldLabel}" />
-                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding BaseAmount}"
-                                Style="{StaticResource DataFieldEntry}" />
-                            <Label Grid.Row="4" Grid.Column="2" Content="Amount"
-                                Style="{StaticResource DataFieldLabel}" />
-                            <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding TradeAmount}"
-                                Style="{StaticResource DataFieldEntry}" />
-
-                            <Label Grid.Row="5" Grid.Column="0" Content="Fee"
-                                Style="{StaticResource DataFieldLabel}" />
-                            <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding BaseFee}"
-                                Style="{StaticResource DataFieldEntry}" />
+                            <Label Grid.Row="5" Grid.Column="0"
+                                   Content="Fee"
+                                   Style="{StaticResource DataFieldLabel}" />
+                            <TextBox Grid.Row="5" Grid.Column="1"
+                                     Text="{Binding SelectedOrder.BaseFee}"
+                                     Style="{StaticResource DataFieldEntry}" />
                         </Grid>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Content="Accept" Command="{Binding AcceptChangesCommand}" />
                             <Button Content="Cancel" Command="{Binding CancelChangesCommand}" />
                         </StackPanel>
+
+                        <Separator />
+
+
+                        <ListView Name="TaxableListView"
+                      Margin="5,0,5,0"
+                      ItemsSource="{Binding Path=SelectedOrder.TaxLines, Mode=OneWay}"
+                      IsEnabled="False">
+                            <ListView.Resources>
+                                <Style TargetType="{x:Type GridViewColumnHeader}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                    <Setter Property="Padding" Value="3,0,0,0" />
+                                </Style>
+                                <Style TargetType="{x:Type ListViewItem}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="0" />
+                                </Style>
+                                <Style TargetType="{x:Type Label}">
+                                    <Setter Property="Margin" Value="0" />
+                                    <Setter Property="Padding" Value="0" />
+                                </Style>
+                            </ListView.Resources>
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Width="80">
+                                        <GridViewColumn.Header>
+                                            <GridViewColumnHeader Tag="Type" Click="OrderDataColumnHeader_Click">Type</GridViewColumnHeader>
+                                        </GridViewColumn.Header>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Label Content="{Binding Type, Mode=OneTime}" HorizontalAlignment="Left" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="80">
+                                        <GridViewColumn.Header>
+                                            <GridViewColumnHeader Tag="Date" Click="OrderDataColumnHeader_Click">Amount</GridViewColumnHeader>
+                                        </GridViewColumn.Header>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Label Content="{Binding TradeAmount, Mode=OneTime}" HorizontalAlignment="Right" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
                     </StackPanel>
                 </Border>
             </StackPanel>

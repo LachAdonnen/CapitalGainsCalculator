@@ -56,9 +56,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\Exceptions\DuplicateTaxEventException.cs" />
     <Compile Include="Model\TaxableBuyOrder.cs" />
     <Compile Include="Model\TaxableBaseOrder.cs" />
     <Compile Include="Model\TaxableSellOrder.cs" />
+    <Compile Include="Model\TaxLedger.cs" />
+    <Compile Include="ViewModel\Converters\InvertConverter.cs" />
     <Compile Include="ViewModel\Converters\NullToHiddenConverter.cs" />
     <Compile Include="ViewModel\DelegateCommand.cs" />
     <Compile Include="Model\Exceptions\OrderImportDataException.cs" />
@@ -70,7 +73,6 @@
     <Compile Include="Model\OrderHistory.cs" />
     <Compile Include="Model\BaseOrder.cs" />
     <Compile Include="Model\Exceptions\OrderTypeMismatchException.cs" />
-    <Compile Include="Model\TransferOrder.cs" />
     <Compile Include="ViewModel\TaxLineViewModel.cs" />
     <Compile Include="ViewModel\OrderHistoryViewModel.cs" />
     <Compile Include="ViewModel\AllOrdersViewModel.cs" />

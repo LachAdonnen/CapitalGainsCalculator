@@ -21,7 +21,7 @@ namespace CapitalGainsCalculator
 		None
 	}
 
-	public enum Location
+	public enum Exchange
 	{
 		Coinbase,
 		GDAX,
@@ -36,7 +36,6 @@ namespace CapitalGainsCalculator
 		Sell,
 		Deposit,
 		Withdraw,
-		Taxable,
 	}
 
 	public enum OrderSortType

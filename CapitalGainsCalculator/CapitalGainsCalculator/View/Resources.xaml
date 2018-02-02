@@ -11,7 +11,13 @@
     <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}"
             x:Key="LocationEnum">
         <ObjectDataProvider.MethodParameters>
-            <x:Type TypeName="base:Location" />
+            <x:Type TypeName="base:Exchange" />
+        </ObjectDataProvider.MethodParameters>
+    </ObjectDataProvider>
+    <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}"
+            x:Key="OrderTypeEnum">
+        <ObjectDataProvider.MethodParameters>
+            <x:Type TypeName="base:OrderType" />
         </ObjectDataProvider.MethodParameters>
     </ObjectDataProvider>
 </ResourceDictionary>

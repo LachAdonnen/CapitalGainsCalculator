@@ -25,7 +25,9 @@ namespace CapitalGainsCalculator.Model
 			}
 		}
 
-		public bool IsCompletelyTaxed
+		public override OrderType Type { get { return OrderType.Buy; } }
+
+		public bool IsFullyTaxed
 		{
 			get
 			{
@@ -37,10 +39,31 @@ namespace CapitalGainsCalculator.Model
 		#region Constructors
 		public TaxableBuyOrder(ExchangeOrder order)
 			: base(order)
-		{ }
+		{
+			if (order.Type == OrderType.Buy)
+			{
+				TradeAmount = order.TradeAmount;
+				TradeCurrency = order.TradeCurrency;
+			}
+			else if (order.Type == OrderType.Sell)
+			{
+				TradeAmount = order.BaseAmount;
+				TradeCurrency = order.BaseCurrency;
+			}
+
+			TaxLines = new List<TaxLine>();
+		}
 		#endregion
 
-		public TaxLine AddTaxLine(decimal tradeAmount)
+		protected override int OnCompareTo(TaxableBaseOrder other)
+		{ return 1; } // If the source order is the same, sort the Buy last
+
+		public void AddToTaxEvent(TaxEvent taxEvent)
+		{
+			AddTaxLine(taxEvent.AmountRemaining)?.AddToTaxEvent(taxEvent);
+		}
+
+		private TaxLine AddTaxLine(decimal tradeAmount)
 		{
 			decimal remaining = TaxableAmountRemaining;
 			if (tradeAmount == 0 || remaining == 0) { return null; }
